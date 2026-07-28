@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>28</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #0b0b0c;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stage {
+    width: 92vw;
+    max-width: 480px;
+    aspect-ratio: 1 / 1;
+    position: relative;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    perspective: 1600px;
+  }
+  .card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+    will-change: transform;
+  }
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  /*
+    The back face is pre-rotated 180deg around Y so that, combined with
+    the card's own 180deg flip (about ANY axis lying in the screen plane),
+    it ends up facing the viewer un-mirrored. A 180deg rotation about any
+    in-plane axis flips the z-facing direction the same way, so this trick
+    works no matter which direction the flip axis points.
+  */
+  .face.back {
+    transform: rotateY(180deg);
+  }
+  .hint {
+    position: fixed;
+    bottom: 6vh;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: rgba(255,255,255,0.35);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <div class="card" id="card">
+    <div class="face front" id="front"></div>
+    <div class="face back" id="back"></div>
+  </div>
+</div>
+<div class="hint">tap to flip</div>
+
+<script>
+  var FRONT = "/assets/28-Front.png";
+  var BACK = "/assets/28-Back.png";
+
+  var card = document.getElementById('card');
+  var stage = document.getElementById('stage');
+  var front = document.getElementById('front');
+  var back = document.getElementById('back');
+
+  front.style.backgroundImage = 'url(' + FRONT + ')';
+  back.style.backgroundImage = 'url(' + BACK + ')';
+
+  var isBack = true; // start showing the back face
+
+  function randomAxis() {
+    // a random direction lying flat in the screen plane (z = 0),
+    // so the flip can swing left-right, top-bottom, or any diagonal
+    var theta = Math.random() * Math.PI * 2;
+    return { x: Math.cos(theta), y: Math.sin(theta) };
+  }
+
+  function applyFlip() {
+    var axis = randomAxis();
+    var extraSpins = Math.floor(Math.random() * 2); // 0 or 1 extra full turns for variety
+    var baseDeg = isBack ? 180 : 0;
+    var deg = baseDeg + extraSpins * 360;
+    card.style.transform =
+      'rotate3d(' + axis.x + ', ' + axis.y + ', 0, ' + deg + 'deg)';
+  }
+
+  applyFlip();
+
+  stage.addEventListener('click', function () {
+    isBack = !isBack;
+    applyFlip();
+  });
+</script>
+
+</body>
+</html>
